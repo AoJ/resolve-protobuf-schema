@@ -8,20 +8,26 @@ var merge = function(a, b) {
   return a
 }
 
-var readSync = function(filename) {
+var readSync = function(filename, options) {
+  if(!options) options = {}
   if (!/\.proto$/i.test(filename) && !fs.existsSync(filename)) filename += '.proto'
 
   var sch = schema(fs.readFileSync(filename, 'utf-8'))
   var imports = [].concat(sch.imports || [])
 
   imports.forEach(function(i) {
-    sch = merge(sch, readSync(path.resolve(path.dirname(filename), i)))
+    sch = merge(sch, readSync(path.resolve(options.root_path || path.dirname(filename), i), options))
   })
 
   return sch
 }
 
-var read = function(filename, cb) {
+var read = function(filename, options, cb) {
+  if(arguments.length === 2) {
+    cb = options;
+    options = {}
+  }
+
   fs.exists(filename, function(exists) {
     if (!exists && !/\.proto$/i.test(filename)) filename += '.proto'
 
@@ -34,7 +40,7 @@ var read = function(filename, cb) {
       var loop = function() {
         if (!imports.length) return cb(null, sch)
 
-        read(path.resolve(path.dirname(filename), imports.shift()), function(err, ch) {
+        read(path.resolve(options.root_path || path.dirname(filename), imports.shift()), options, function(err, ch) {
           if (err) return cb(err)
           sch = merge(sch, ch)
           loop()

@@ -41,8 +41,11 @@ console.log(resolve.sync('./another-test.proto')) // will print a combined parse
 
 ## API
 
-* `resolve(path, cb)` read and resolve a schema
-* `resolve.sync(path)` sync version of `resolve`
+* `resolve(path, [options], cb)` read and resolve a schema. Optionally, you can pass the options object
+* `resolve.sync(path, [options])` sync version of `resolve`. Optionally, you can pass the options object
+
+`options` Options object can contain overridden 'root_path' for imported files. Default root_path is dirname of the file being processed.
+
 
 ## License
 

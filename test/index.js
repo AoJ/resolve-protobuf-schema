@@ -6,8 +6,12 @@ var test = function(name, fn) {
     fn(t, schema)
   })
   tape(name+' sync', function(t) {
-    fn(t, function(name, cb) {
-      cb(null, schema.sync(name))
+    fn(t, function(name, options, cb) {
+      if(arguments.length === 2) {
+          cb = options
+          options = void(0)
+      }
+      cb(null, schema.sync(name, options))
     })
   })
 }
@@ -46,4 +50,12 @@ test('a imports b imports c', function(t, schema) {
       t.end()
     })
   })
+})
+
+test('d imports a with root path', function(t, schema) {
+    schema(__dirname+'/nested/d.proto', {root_path: __dirname}, function(err, sch) {
+        t.notOk(err, 'no err')
+        t.same(sch.messages.length, 4)
+        t.end()
+    })
 })
